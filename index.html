@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Weight Calculator</title>
+    <style>
+        :root {
+            --primary-color: #4a7c59;
+            --primary-light: #eaf4ef;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 100%;
+            padding: 15px 0;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        h1 {
+            font-size: 24px;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .tab-container {
+            display: flex;
+            background-color: var(--primary-light);
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-indicator {
+            position: absolute;
+            height: 3px;
+            background-color: var(--primary-color);
+            bottom: 0;
+            left: 0;
+            transition: transform 0.3s ease;
+            width: 100%;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 5px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-color);
+            position: relative;
+            font-size: 14px;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: border 0.3s;
+            background: white;
+        }
+
+        .input-container input {
+            padding-right: 90px;
+            /* Make room for the unit selector */
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .unit-selector {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+            width: 80px;
+            background-color: rgba(250, 250, 250, 0.8);
+            border-left: 1px solid #eee;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .unit-selector select {
+            width: 100%;
+            height: 100%;
+            padding: 0 25px 0 10px;
+            border: none;
+            background-color: transparent;
+            font-size: 14px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            position: relative;
+            z-index: 20;
+            text-align: center;
+        }
+
+        .unit-selector:after {
+            content: '';
+            border-style: solid;
+            border-width: 5px 5px 0 5px;
+            border-color: #888 transparent transparent transparent;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            flex: 1;
+            transition: all 0.3s;
+        }
+
+        .btn-calculate {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-calculate:hover {
+            background-color: #3a6a49;
+        }
+
+        .btn-clear {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .btn-clear:hover {
+            background-color: #e5e5e5;
+        }
+
+        .result-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            padding: 30px 20px;
+        }
+
+        .result-modal.show {
+            transform: translateY(0);
+        }
+
+        .result-content {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .close-btn {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            padding: 12px;
+            border-radius: var(--border-radius);
+            width: 60%;
+            margin: 0 auto;
+            display: block;
+            font-weight: 500;
+        }
+
+        .close-btn:hover {
+            background-color: #d9e9df;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* Mobile-specific adjustments */
+        @media screen and (max-width: 480px) {
+            .unit-selector {
+                width: 80px;
+            }
+
+            .unit-selector select {
+                font-size: 16px;
+                /* Larger font for better touch targets */
+                padding: 0;
+                text-align-last: center;
+                /* Center text in dropdown */
+            }
+
+            input {
+                padding-right: 85px;
+            }
+
+            /* Add a bit more tap area */
+            .unit-selector:before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M3 9H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M9 21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+            <h1>Paper Weight Calculator</h1>
+        </header>
+
+        <div class="tab-container">
+            <div class="tab active" data-tab="weight">WEIGHT</div>
+            <div class="tab-indicator"></div>
+        </div>
+
+        <form id="calculator-form">
+            <div class="form-group">
+                <label for="length">Length</label>
+                <div class="input-container">
+                    <input type="number" id="length" placeholder="Enter length" required min="0">
+                    <div class="unit-selector">
+                        <select id="length-unit">
+                            <option value="mm">MM</option>
+                            <option value="cm">CM</option>
+                            <option value="inch" selected>INCH</option>
+                            <option value="meter">METER</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="width">Width</label>
+                <div class="input-container">
+                    <input type="number" id="width" placeholder="Enter width" required min="0">
+                    <div class="unit-selector">
+                        <select id="width-unit">
+                            <option value="mm">MM</option>
+                            <option value="cm">CM</option>
+                            <option value="inch" selected>INCH</option>
+                            <option value="meter">METER</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="gsm">GSM (g/m²)</label>
+                <input type="number" id="gsm" placeholder="Enter GSM" required min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" placeholder="Enter quantity" required min="1" value="1">
+            </div>
+
+            <div class="form-group">
+                <label for="rate">Rate per Kilogram</label>
+                <input type="number" id="rate" placeholder="Enter rate per kg" required min="0">
+            </div>
+
+            <div class="btn-container">
+                <button type="button" class="btn-calculate" id="calculate-btn">Calculate</button>
+                <button type="button" class="btn-clear" id="clear-btn">Clear</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="result-modal" id="result-modal">
+        <div class="result-content">
+            <div class="result-title">Weight Calculation Results</div>
+            <div class="result-value" id="weight-result">0 Kgs</div>
+            <div class="result-value" id="cost-result">₹0.00</div>
+        </div>
+        <button class="close-btn" id="close-btn">Close</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get DOM elements
+            const form = document.getElementById('calculator-form');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const modal = document.getElementById('result-modal');
+            const overlay = document.getElementById('overlay');
+            const closeBtn = document.getElementById('close-btn');
+            const weightResult = document.getElementById('weight-result');
+            const costResult = document.getElementById('cost-result');
+            const tabs = document.querySelectorAll('.tab');
+            const tabIndicator = document.querySelector('.tab-indicator');
+
+            // No tab switching needed since we only have one tab
+            tabIndicator.style.transform = 'translateX(0)';
+
+            // Calculate paper weight and cost
+            calculateBtn.addEventListener('click', function () {
+                // Get input values
+                const length = parseFloat(document.getElementById('length').value);
+                const width = parseFloat(document.getElementById('width').value);
+                const gsm = parseFloat(document.getElementById('gsm').value);
+                const quantity = parseInt(document.getElementById('quantity').value);
+                const rate = parseFloat(document.getElementById('rate').value);
+
+                // Get units
+                const lengthUnit = document.getElementById('length-unit').value;
+                const widthUnit = document.getElementById('width-unit').value;
+
+                // Check if all required fields are filled
+                if (!length || !width || !gsm || !quantity || !rate) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                // Convert length and width to meters
+                const lengthInMeters = convertToMeters(length, lengthUnit);
+                const widthInMeters = convertToMeters(width, widthUnit);
+
+                // Calculate paper weight in kg
+                // Formula: (Length in meters x Width in meters x GSM x Quantity) / 1000
+                const weightInKg = (lengthInMeters * widthInMeters * gsm * quantity) / 1000;
+
+                // Calculate total cost
+                const totalCost = weightInKg * rate;
+
+                // Display results
+                weightResult.textContent = `${weightInKg.toFixed(3)} Kgs`;
+                costResult.textContent = `₹${totalCost.toFixed(2)}`;
+
+                // Show modal
+                showModal();
+
+            });
+
+            // Convert length to meters based on unit
+            function convertToMeters(value, unit) {
+                switch (unit) {
+                    case 'mm':
+                        return value / 1000;
+                    case 'cm':
+                        return value / 100;
+                    case 'inch':
+                        return value * 0.0254;
+                    case 'meter':
+                        return value;
+                    default:
+                        return value / 1000; // default to mm
+                }
+            }
+
+
+            // Enhance mobile dropdown interaction
+            function enhanceMobileDropdowns() {
+                const unitSelectors = document.querySelectorAll('.unit-selector');
+
+                // Check if we're on a mobile device
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+                if (isMobile) {
+                    unitSelectors.forEach(selector => {
+                        const selectEl = selector.querySelector('select');
+
+                        // Add click event to the whole selector area
+                        selector.addEventListener('click', (e) => {
+                            e.stopPropagation();
+
+                            // Create a synthetic click on the select element
+                            const event = new MouseEvent('mousedown', {
+                                bubbles: true,
+                                cancelable: true,
+                                view: window
+                            });
+
+                            selectEl.dispatchEvent(event);
+                        });
+                    });
+                }
+            }
+
+            // Call the function to enhance mobile dropdowns
+            enhanceMobileDropdowns();
+
+            // Clear all inputs
+            clearBtn.addEventListener('click', function () {
+                form.reset();
+            });
+
+            // Close modal
+            closeBtn.addEventListener('click', hideModal);
+            overlay.addEventListener('click', hideModal);
+
+            // Show modal function
+            function showModal() {
+                modal.classList.add('show');
+                overlay.classList.add('show');
+            }
+
+            // Hide modal function
+            function hideModal() {
+                modal.classList.remove('show');
+                overlay.classList.remove('show');
+            }
+
+        });
+    </script>
+</body>
+
+</html>
