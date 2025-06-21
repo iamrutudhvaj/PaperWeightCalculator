@@ -375,8 +375,8 @@
             </div>
 
             <div class="form-group">
-                <label for="rate">Rate per Kilogram</label>
-                <input type="number" id="rate" placeholder="Enter rate per kg" required min="0">
+                <label for="rate">Rate per Kilogram (Optional)</label>
+                <input type="number" id="rate" placeholder="Enter rate per kg" min="0">
             </div>
 
             <div class="btn-container">
@@ -389,7 +389,7 @@
     <div class="overlay" id="overlay"></div>
     <div class="result-modal" id="result-modal">
         <div class="result-content">
-            <div class="result-title">Weight Calculation Results</div>
+            <div class="result-title">Paper Calculation Results</div>
             <div class="result-value" id="weight-result">0 Kgs</div>
             <div class="result-value" id="cost-result">₹0.00</div>
         </div>
@@ -427,8 +427,8 @@
                 const widthUnit = document.getElementById('width-unit').value;
 
                 // Check if all required fields are filled
-                if (!length || !width || !gsm || !quantity || !rate) {
-                    alert('Please fill in all fields');
+                if (!length || !width || !gsm || !quantity) {
+                    alert('Please fill in all required fields');
                     return;
                 }
 
@@ -440,12 +440,17 @@
                 // Formula: (Length in meters x Width in meters x GSM x Quantity) / 1000
                 const weightInKg = (lengthInMeters * widthInMeters * gsm * quantity) / 1000;
 
-                // Calculate total cost
-                const totalCost = weightInKg * rate;
-
-                // Display results
+                // Display weight result
                 weightResult.textContent = `${weightInKg.toFixed(3)} Kgs`;
-                costResult.textContent = `₹${totalCost.toFixed(2)}`;
+
+                // Calculate and display total cost only if rate is provided
+                if (rate) {
+                    const totalCost = weightInKg * rate;
+                    costResult.textContent = `₹${totalCost.toFixed(2)}`;
+                    costResult.style.display = 'block';
+                } else {
+                    costResult.style.display = 'none';
+                }
 
                 // Show modal
                 showModal();
